@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include "freertos/FreeRTOSConfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -12,6 +13,13 @@
 #define I2C_MASTER_SDA_PIN  4
 #define X_DELAY_1000MS      pdMS_TO_TICKS(1000)
 
+#define READ_OPERATION      0
+#define WRITE_OPERATION     1
+#define ENABLE_ACK_CHK      true
+#define NACK_VAL            0x1
+
+#define MPU6050_ADDRESS     0x68
+
 const char MPU6050_TAG[] = "MPU-6050";
 
 
@@ -20,7 +28,6 @@ void print_hello(){
 }
 
 void mpu_6050_i2c_master_init(){
-
     esp_err_t err;
     err = i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER);
     if(err == ESP_ERR_INVALID_ARG){
@@ -50,4 +57,18 @@ void mpu_6050_i2c_master_init(){
     }
 }
 
+void mpu_6050_read_byte_from_register(uint8_t reg, uint8_t* data){
+    esp_err_t err;
+    i2c_cmd_handle_t handle = i2c_cmd_link_create();
+    err = i2c_master_start(handle);
+    err = i2c_master_write_byte(handle, MPU6050_ADDRESS << 1 || WRITE_OPERATION, ENABLE_ACK_CHK);
+    err = i2c_master_write_byte(handle, reg, ENABLE_ACK_CHK);
+    err = i2c_master_cmd_begin(I2C_NUM_0, handle, 1000 / portTICK_RATE_MS);
 
+    err = i2c_master_start(handle);
+    err = i2c_master_write_byte(handle, MPU6050_ADDRESS << 1 || READ_OPERATION, ENABLE_ACK_CHK);
+    err = i2c_master_read_byte(handle, data, NACK_VAL);
+    err = i2c_master_stop(handle);
+    err = i2c_master_cmd_begin(I2C_NUM_0, handle, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(handle);
+}

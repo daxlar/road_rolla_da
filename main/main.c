@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include "freertos/FreeRTOSConfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -10,11 +11,13 @@
 const char TAG[] = "app_main";
 
 void app_main(void){
-    const TickType_t xDelay1000ms = pdMS_TO_TICKS(1000);
+    const TickType_t xDelay1000ms = pdMS_TO_TICKS(100);
+    uint8_t data = 0;
     mpu_6050_i2c_master_init();
     while(1){
         vTaskDelay(xDelay1000ms);
-        print_hello();
-        ESP_LOGI(TAG, "hello world");
+        mpu_6050_read_byte_from_register(0x3B, &data);
+        printf("%d", data);
+        printf("hello world");
     }
 }
