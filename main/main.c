@@ -16,7 +16,7 @@ void app_main(void){
     mpu_6050_i2c_master_init();
     while(1){
         vTaskDelay(xDelay1000ms);
-        mpu_6050_read_byte_from_register(0x3B, &data);
+        mpu_6050_read_from_register(0x3B, &data);
         printf("%d", data);
         printf("hello world");
     }

@@ -57,16 +57,16 @@ void mpu_6050_i2c_master_init(){
     }
 }
 
-void mpu_6050_read_byte_from_register(uint8_t reg, uint8_t* data){
+void mpu_6050_read_from_register(uint8_t reg, uint8_t* data, uint8_t datalen){
     esp_err_t err;
     i2c_cmd_handle_t handle = i2c_cmd_link_create();
     err = i2c_master_start(handle);
-    err = i2c_master_write_byte(handle, MPU6050_ADDRESS << 1 || WRITE_OPERATION, ENABLE_ACK_CHK);
+    err = i2c_master_write_byte(handle, MPU6050_ADDRESS << 1 | WRITE_OPERATION, ENABLE_ACK_CHK);
     err = i2c_master_write_byte(handle, reg, ENABLE_ACK_CHK);
     err = i2c_master_cmd_begin(I2C_NUM_0, handle, 1000 / portTICK_RATE_MS);
 
     err = i2c_master_start(handle);
-    err = i2c_master_write_byte(handle, MPU6050_ADDRESS << 1 || READ_OPERATION, ENABLE_ACK_CHK);
+    err = i2c_master_write_byte(handle, MPU6050_ADDRESS << 1 | READ_OPERATION, ENABLE_ACK_CHK);
     err = i2c_master_read_byte(handle, data, NACK_VAL);
     err = i2c_master_stop(handle);
     err = i2c_master_cmd_begin(I2C_NUM_0, handle, 1000 / portTICK_RATE_MS);
